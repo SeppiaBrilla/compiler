@@ -4,30 +4,26 @@ from sys import stdout
 write = stdout.write
 
 class Chat_manager:
-    def run(self):
-        width = get_terminal_size(0)[0]
-        message_width = (width // 2) - 10
+    def __init__(self) -> None:
+        self.width = get_terminal_size(0)[0]
+        self.message_width = (self.width // 2) - 10
+    
+    def clear(self) -> None:
+        write("\033[F")
 
-        while True:
-            msg = input()
-            write("\033[F")
-            print(self.print_user_message(msg, message_width, width))
-            response = self.get_response(msg)
-            print(self.print_console_message(response, message_width, width))
-
-    def print_user_message(self, msg, message_width, total_width):
-        left_pad = total_width - message_width
+    def get_user_message(self, msg:str) -> str:
+        left_pad = self.width - self.message_width
         left_pad_str = ''.join([' ' for _ in range(left_pad)])
         lines = msg.split('\n')
         true_lines = []
         for line in lines:
-            true_lines += self.split_string(line, message_width)
+            true_lines += self.__split_string(line, self.message_width)
         for i in range(len(true_lines)):
             line_length = len(true_lines[i])
             true_lines[i] = left_pad_str + true_lines[i] + ''.join(' ' for _ in range(line_length))
         return '\n'.join(true_lines)
     
-    def split_string(self, string, width):
+    def __split_string(self, string:str, width:int):
         _words = string.split(' ')
         substrings = ['']
         words = []
@@ -43,16 +39,14 @@ class Chat_manager:
             substrings[-1] += ' ' + word
         return substrings
 
-    def get_response(self, msg):
-        return ' '.join(['msg' for _ in range(len(msg.split(' ')))])
 
-    def print_console_message(self, msg, message_width, total_widht):
-        right_pad = total_widht - message_width
+    def get_console_message(self, msg:str) -> str:
+        right_pad = self.width - self.message_width
         right_pad_str = ''.join([' ' for _ in range(right_pad)])
         lines = msg.split('\n')
         true_lines = []
         for line in lines:
-            true_lines += self.split_string(line, message_width)
+            true_lines += self.__split_string(line, self.message_width)
         for i in range(len(true_lines)):
             line_length = len(true_lines[i])
             true_lines[i] = true_lines[i] + ''.join(' ' for _ in range(line_length)) + right_pad_str

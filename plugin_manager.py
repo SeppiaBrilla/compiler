@@ -10,7 +10,9 @@ class Plugin_manager:
             print(f'discovered plugin {plugin["name"]}')
     
     def use_plugin(self, plugin_name:str, args:list[str]):
+        if args[0] == '(None)':
+            return self.plugins[plugin_name]([])
         return self.plugins[plugin_name](args)
 
     def __str__(self) -> str:
-        return 'available plugins:\n-' + '\n-'.join([str(self.plugins[key]) for key in self.plugins.keys()])
+        return 'available functions:\n-' + '\n-'.join([str(self.plugins[key]) for key in self.plugins.keys()])
