@@ -1,5 +1,5 @@
 from plugin import Plugin
-
+import logging
 
 class Plugin_manager:
     def __init__(self, plugin_list:list[dict]) -> None:
@@ -7,7 +7,7 @@ class Plugin_manager:
 
         for plugin in plugin_list:
             self.plugins[plugin['name']] = Plugin(plugin['name'], plugin['parameters'], plugin['description'])
-            print(f'discovered plugin {plugin["name"]}')
+            logging.debug(f'discovered plugin {plugin["name"]}')
     
     def use_plugin(self, plugin_name:str, args:list[str]):
         if args[0] == '(None)':
