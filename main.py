@@ -1,17 +1,9 @@
-from model import LLM_model
+from query_model import Query_model, get_queryModel
 from plugin_manager import Plugin_manager
 from chat_manager import Chat_manager
 from langchain.docstore.document import Document
 from re import findall
-def get_query(query:str) -> str:
-    return f'''
-    This data describes a set of command you can use to fullfill some requests. you can use them by calling the function followed by the charachter ":" and its parameters. 
-    The function call must be sourranded by the charachters _$ and $_. If the call contains the value "(None)" it means there are no parameters. 
-    Example:
-        function = list-folder-content
-        correct call = _$list-folder-content:folder$_
-
-    {query}'''
+import logging
 
 def answer_parser(answer:str) -> dict[str,list[str]]:
     functions = findall('\\_\\$([a-zA-Z0-9_ :\\-\\.,]*)\\$\\_',answer)
@@ -41,32 +33,29 @@ conf = [
     },
     {   
         'name':'execute',
-        'parameters': 'spike pk -s: program_name'
-        'description' 'execute the program called "program_name" and returns the execution statistics'
+        'parameters': 'spike pk -s: program_name',
+        'description': 'execute the program called "program_name" and returns the execution statistics'
     }
 ]
 chat_manager = Chat_manager()
-model_name = "mistralai/Mistral-7B-v0.1"
-# model_name = 'gpt2'
-model = LLM_model(model_name)
+# model_name = "mistralai/Mistral-7B-v0.1"
+model_name = 'gpt2'
+model = get_queryModel(model_name)
 manager = Plugin_manager(conf)
-
+logging.basicConfig(filename='app.log', filemode='w', format='%(name)s - %(levelname)s - %(message)s')
 document = Document(page_content=str(manager))
-# query = get_query('Does exists a function that says hello to someone? if so, call it and pretend to already have the answer instead of only the call')
-# response = model.query([document], query)
-# print(response)
+if isinstance(model, Query_model):
+    model.add_documents(document)
 
 while True:
-    msg = input()
+    msg = input('query the llm: ')
     if 'exit()' in msg:
         break
-#     # chat_manager.clear()
-#     # print(chat_manager.get_user_message(msg))
-#     # print(chat_manager.get_console_message(model.query([document], get_query(msg))))
-    print(f'user: {msg}')
-    response = model.query([document], get_query(msg))
+    chat_manager.clear()
+    print(chat_manager.get_user_message(msg))
+    response = model.query(msg)
     functions = answer_parser(response)
     for name in functions.keys():
-        print(f'the model called the function {name} with parameters {functions[name]}')
-        print(f'the result is: {manager.use_plugin(name, functions[name])}')
-    print(f'bot: {response}')
+        logging.debug(f'the model called the function {name} with parameters {functions[name]}')
+        logging.debug(f'the result is: {manager.use_plugin(name, functions[name])}')
+    print(chat_manager.get_console_message(response))
