@@ -1,4 +1,4 @@
-from model import LLM_model
+from models.model import LLM_model
 from transformers import pipeline
 from langchain.llms import HuggingFacePipeline
 from langchain.docstore.document import Document
@@ -31,6 +31,8 @@ class Query_model(LLM_model):
             correct call = _$list-folder-content:folder$_
 
         {query}'''
+
+
 
 def get_queryModel(model_name:str) -> Query_model:
     logging.info(f"initializating a query model with model: {model_name}")
