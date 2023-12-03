@@ -35,21 +35,21 @@ class Mistral_compiler(LLM_model):
     def __create_model(self, functions):
         model = f'''
 FROM mistral
-PARAMETER temperature 0.7
+PARAMETER temperature 0.5
 
 SYSTEM """ 
-You are an AI assistant that helps managing the compilation task of some code.
-This data describes a set of command you can use to fullfill some requests. you can use them by calling the function followed by the charachter ":" and its parameters. 
-        The function call must be sourranded by the charachters _$ and $_. If the call contains the value "(None)" it means there are no parameters. 
-        Example:
-            function = list-folder-content
-            correct call = _$list-folder-content:folder$_
+You are an AI assistant that helps compiling code.
+You have a set of fuctions you can call to assist you on the job. You can call them as stated below:
+            function = example
+            correct call = ```example(parameters)```
+If there is a function that can be used use it instead of giving your idea.
 Your answer must contain the function call and act as if the correct result from the call is already present instead of the function call. Example:
-"Here it is the content of the folder 'folder': _$list-folder-content:folder$_"
+"Here it is the result of the function example on the parameter: ```example(parameter)```". 
+Every parameter is always mandatory. The empty array can be noted as: []. Each value inside the array must be separated by commas. Example:
+```example2([value1,value2,value3])```
 {functions}
 """
         '''
-        print(model)
         f = open(self.FILE_NAME, 'w')
         f.write(model)
         f.close()
