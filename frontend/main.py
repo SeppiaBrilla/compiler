@@ -10,10 +10,10 @@ def exit_signal_handler(sig, frame):
 
 formatter = Formatter()
 signal(SIGINT, exit_signal_handler)
-def response_parser(response, data):
+def response_parser(response, data, regex):
     response = response.replace("'", "")
     response = response.replace('"', '')
-    functions = findall('\\`\\`\\`([a-zA-Z0-9_ \\-\\.,]*\\([a-zA-Z0-9_ /\\-\\.,\\[\\]]*\\))\\`\\`\\`',response)
+    functions = findall(regex,response)
     plugins_values = []
     plugins_names = []
     color_codes = {'success': Color(CGREEN), 'error': Color(CRED), 'none': Color(CVIOLET)}
@@ -21,9 +21,11 @@ def response_parser(response, data):
     for function in functions:
         split_function = function[:-1].split('(') 
         plugins_names.append(split_function[0])
-        result = data[split_function[0]].pop(0)
-        response = response.replace('```' + function + '```', f'[{len(plugins_names) - 1}]{color(split_function[0], result["outcome"])}')
-        plugins_values.append(result['msg'])
+        result = data.pop(0)
+        if not result[0] == split_function[0]:
+            raise Exception(f'{result[0]} {split_function[0]}')
+        response = response.replace('```' + function + '```', f'[{len(plugins_names) - 1}]{color(split_function[0], result[1]["outcome"])}')
+        plugins_values.append(result[1]['msg'])
     return response, plugins_values, plugins_names
 
 def print_actions(plugins_names, plugins_values, response):
@@ -50,7 +52,7 @@ def print_actions(plugins_names, plugins_values, response):
 
 def main(port:int):
     com = LLM_comunincation(port)
-
+    regex = com.get_regex()
     while True:
         msg = input('query the llm. If you want to exit write "exit()" or press ctrl + C: ')
         if 'exit()' in msg:
@@ -61,7 +63,7 @@ def main(port:int):
         response = com.query_llm(msg, 'fe')
         data = response['data']
         ai_response = response['response']
-        string_response, plugins_values, plugins_names = response_parser(ai_response, data)
+        string_response, plugins_values, plugins_names = response_parser(ai_response, data, regex)
         print(formatter.get_console_message(string_response))
         print()
         print_actions(plugins_names, plugins_values, string_response)

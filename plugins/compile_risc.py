@@ -9,14 +9,15 @@ def main():
         parameters = com.get_parameters('compile')
         program_name = parameters['program_name']
         file_names = parameters['[file_names]']
+        optimization_level = parameters['optimization']
         lto = parameters['lto']
-        command = ['gcc', '-O3'] 
-        if lto:
+        command = ['gcc', f'-{optimization_level}'] 
+        if lto == 'true':
             command += ['-flto']
 
         command += [ '-o', program_name] + file_names
         process = Popen(command, stdout=PIPE, stderr=PIPE, text=True)
-        res, err = process.communicate()
+        _, err = process.communicate()
         print(command)
         if err == '':
             com.save_data('compile', {'success' : 'compiled successfully'}, 'success')
@@ -24,8 +25,5 @@ def main():
             com.save_data('compile', {'error' : err}, 'error')
     except Exception as e:
         com.save_data('compile', {'error' : str(e)}, 'error')
-    print("done")
 if __name__ == "__main__":
     main()
-
-

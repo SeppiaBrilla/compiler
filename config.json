@@ -14,9 +14,20 @@
         },
         {
             "name": "compile",
-            "parameters": "program_name [file_names] lto",
-            "description": "compile a the files in the array 'file_names' into a program called 'program_name'. The 'lto' parameter activate the LTO optimization and it is either true or false.",
+            "parameters": "program_name [file_names] optimization lto",
+            "description": "compile a the files in the array 'file_names' into a program called 'program_name'. The 'optimization' parameter indicates the optimization level, the possible values are O3 and Os.The 'lto' parameter activate the LTO optimization and it is either true or false.",
             "plugin_location": "plugins/compile_risc.py",
+            "interpreter":"python3",
+            "on":{
+                "success": "print success",
+                "error": "query error"
+            }
+        },
+        {
+            "name": "compile-and-test",
+            "parameters": "program_name [file_names] optimization lto [execution-parameters]",
+            "description": "compile a the files in the array 'file_names' into a program called 'program_name' Then it tests it on the array called 'parameters'. It returs the execution statistics. The 'optimization' parameter indicates the optimization level, the possible values are O3 and Os.The 'lto' parameter activate the LTO optimization and it is either true or false.",
+            "plugin_location": "plugins/compile_and_test.py",
             "interpreter":"python3",
             "on":{
                 "success": "print success",

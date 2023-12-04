@@ -5,7 +5,7 @@ import json
 
 class Mistral_compiler(LLM_model):
     MODEL_NAME = 'Mistral-compiler'
-    FILE_NAME = './MistralModelFile'
+    FILE_NAME = '.data/MistralModelFile'
     headers = {
         'Content-type':'application/json', 
         'Accept':'application/json'
@@ -35,7 +35,7 @@ class Mistral_compiler(LLM_model):
     def __create_model(self, functions):
         model = f'''
 FROM mistral
-PARAMETER temperature 0.5
+PARAMETER temperature 0.2
 
 SYSTEM """ 
 You are an AI assistant that helps compiling code.
@@ -45,8 +45,9 @@ You have a set of fuctions you can call to assist you on the job. You can call t
 If there is a function that can be used use it instead of giving your idea.
 Your answer must contain the function call and act as if the correct result from the call is already present instead of the function call. Example:
 "Here it is the result of the function example on the parameter: ```example(parameter)```". 
-Every parameter is always mandatory. The empty array can be noted as: []. Each value inside the array must be separated by commas. Example:
+Every parameter is always mandatory and no more parameter than the one stated can be passed. The empty array can be noted as: []. Each value inside the array must be separated by commas. Example:
 ```example2([value1,value2,value3])```
+The value "Functions = ..." contains the results from the called functions. Use the content to answer the user but never copy it.
 {functions}
 """
         '''
