@@ -16,7 +16,7 @@ class LLM_comunincation:
         })
         response = requests.post(f'http://localhost:{self.port}/query', data=body, headers=self.headers)
         response = response.json()
-        return response['response']
+        return response
 
     def get_data(self, plugin_name:str, element:int = -1):
         return requests.get(f'http://localhost:{self.port}/storage/{plugin_name}/{element}').json()
@@ -24,13 +24,14 @@ class LLM_comunincation:
     def call_plugin(self, plugin_name:str, parameters:dict):
         body = json.dumps({'parameters': parameters})
         requests.post(f'http://localhost:{self.port}/call_plugin/{plugin_name}', data=body, headers=self.headers)
-        return self.get_data(plugin_name).json()
+        return self.get_data(plugin_name)
 
-    def save_data(self, plugin_name, data):
-        body = json.dumps({'data': data})
+    def save_data(self, plugin_name, data, outcome:str):
+        body = json.dumps({'data': data, 'outcome': outcome})
         requests.post(f'http://localhost:{self.port}/save_data/{plugin_name}', data=body, headers=self.headers)
 
     def get_parameters(self, plugin_name):
         return requests.get(f'http://localhost:{self.port}/parameters/{plugin_name}').json()
 
-
+    def get_regex(self):
+        return requests.get(f'http://localhost:{self.port}/get_regex').json()['regex']
